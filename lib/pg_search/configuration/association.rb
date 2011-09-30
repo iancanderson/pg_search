@@ -19,7 +19,7 @@ module PgSearch
 
       def join(primary_key)
         selects = columns.map do |column|
-          "string_agg(#{column.full_name}) AS #{column.alias}"
+          "array_to_string(array_accum(#{column.full_name}), ' ') AS #{column.alias}"
         end.join(", ")
         relation = @model.joins(@name).select("#{primary_key} AS id, #{selects}").group(primary_key)
         "LEFT OUTER JOIN (#{relation.to_sql}) #{subselect_alias} ON #{subselect_alias}.id = #{primary_key}"
